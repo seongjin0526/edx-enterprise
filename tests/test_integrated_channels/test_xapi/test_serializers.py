@@ -5,16 +5,15 @@ Test for xAPI serializers.
 
 from __future__ import absolute_import, unicode_literals
 
-import mock
 import unittest
-
 from datetime import datetime, timedelta
+
+import mock
 from faker import Factory as FakerFactory
 from pytest import mark
 
-from test_utils import factories
-
 from integrated_channels.xapi.serializers import CourseInfoSerializer, LearnerInfoSerializer
+from test_utils import factories
 
 
 @mark.django_db
@@ -27,6 +26,7 @@ class TestLearnerInfoSerializer(unittest.TestCase):
         super(TestLearnerInfoSerializer, self).setUp()
         self.user = factories.UserFactory()
         self.enterprise_customer_user = factories.EnterpriseCustomerUserFactory(user_id=self.user.id)
+        # pylint: disable=invalid-name
         self.enterprise_customer_identity_provider = factories.EnterpriseCustomerIdentityProviderFactory(
             enterprise_customer=self.enterprise_customer_user.enterprise_customer
         )
@@ -78,11 +78,11 @@ class TestCourseInfoSerializer(unittest.TestCase):
 
         now = datetime.now()
         self.course_overview_mock_data = dict(
-            id=self.faker.text(max_nb_chars=25),
-            display_name=self.faker.text(max_nb_chars=25),
-            short_description=self.faker.text(),
-            marketing_url=self.faker.url(),
-            effort=self.faker.text(max_nb_chars=10),
+            id=self.faker.text(max_nb_chars=25),  # pylint: disable=no-member
+            display_name=self.faker.text(max_nb_chars=25),  # pylint: disable=no-member
+            short_description=self.faker.text(),  # pylint: disable=no-member
+            marketing_url=self.faker.url(),  # pylint: disable=no-member
+            effort=self.faker.text(max_nb_chars=10),  # pylint: disable=no-member
             start=now,
             end=now + timedelta(weeks=3, days=4),
         )

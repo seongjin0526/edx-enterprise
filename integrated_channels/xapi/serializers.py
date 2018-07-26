@@ -7,10 +7,11 @@ from __future__ import absolute_import, unicode_literals
 
 from rest_framework import serializers
 
+from enterprise.api.v1.serializers import ImmutableStateSerializer
 from enterprise.models import EnterpriseCustomerUser
 
 
-class LearnerInfoSerializer(serializers.Serializer):
+class LearnerInfoSerializer(ImmutableStateSerializer):
     """
     Serializer for Learner info.
 
@@ -26,6 +27,15 @@ class LearnerInfoSerializer(serializers.Serializer):
     enterprise_sso_uid = serializers.SerializerMethodField()
 
     def get_enterprise_user_id(self, obj):
+        """
+        Get enterprise user id from user object.
+
+        Arguments:
+            obj (User): Django User object
+
+        Returns:
+            (int): Primary Key identifier for enterprise user object.
+        """
         try:
             enterprise_learner = EnterpriseCustomerUser.objects.get(user_id=obj.id)
         except EnterpriseCustomerUser.DoesNotExist:
@@ -34,6 +44,15 @@ class LearnerInfoSerializer(serializers.Serializer):
         return enterprise_learner.id
 
     def get_enterprise_sso_uid(self, obj):
+        """
+        Get enterprise SSO UID.
+
+        Arguments:
+            obj (User): Django User object
+
+        Returns:
+            (str): string containing UUID for enterprise customer's Identity Provider.
+        """
         try:
             enterprise_learner = EnterpriseCustomerUser.objects.get(user_id=obj.id)
         except EnterpriseCustomerUser.DoesNotExist:
@@ -42,7 +61,7 @@ class LearnerInfoSerializer(serializers.Serializer):
         return enterprise_learner.enterprise_customer.identity_provider
 
 
-class CourseInfoSerializer(serializers.Serializer):
+class CourseInfoSerializer(ImmutableStateSerializer):
     """
     Serializer for course info.
 
@@ -56,4 +75,13 @@ class CourseInfoSerializer(serializers.Serializer):
     course_duration = serializers.SerializerMethodField()
 
     def get_course_duration(self, obj):
+        """
+        Get course's duration as a timedelta.
+
+        Arguments:
+            obj (CourseOverview): CourseOverview object
+
+        Returns:
+            (timedelta): Duration of a course.
+        """
         return obj.end - obj.start if obj.start and obj.end else None
