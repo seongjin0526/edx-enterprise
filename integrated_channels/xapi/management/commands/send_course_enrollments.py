@@ -56,7 +56,7 @@ class Command(BaseCommand):
     @staticmethod
     def parse_arguments(*args, **options):
         """
-        Parse and validate arguments for send_course_enrollment_statements command.
+        Parse and validate arguments for send_course_enrollments command.
 
         Arguments:
             *args: Positional arguments passed to the command
