@@ -6,7 +6,6 @@ Send xAPI statements to the LRS configured via admin.
 from __future__ import absolute_import, unicode_literals
 
 import datetime
-
 from logging import getLogger
 
 from django.core.management.base import BaseCommand, CommandError
@@ -16,7 +15,6 @@ from enterprise.utils import NotConnectedToOpenEdX
 from integrated_channels.exceptions import ClientError
 from integrated_channels.xapi.models import XAPILRSConfiguration
 from integrated_channels.xapi.utils import send_course_enrollment_statement
-
 
 try:
     from student.models import CourseEnrollment
@@ -54,7 +52,7 @@ class Command(BaseCommand):
         super(Command, self).add_arguments(parser)
 
     @staticmethod
-    def parse_arguments(*args, **options):
+    def parse_arguments(*args, **options):  # pylint: disable=unused-argument
         """
         Parse and validate arguments for send_course_enrollments command.
 
@@ -75,6 +73,7 @@ class Command(BaseCommand):
 
         if enterprise_customer_uuid:
             try:
+                # pylint: disable=no-member
                 enterprise_customer = EnterpriseCustomer.objects.get(uuid=enterprise_customer_uuid)
             except EnterpriseCustomer.DoesNotExist:
                 raise CommandError('Enterprise customer with uuid "{enterprise_customer_uuid}" does not exist.'.format(

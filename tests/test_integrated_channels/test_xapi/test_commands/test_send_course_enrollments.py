@@ -6,16 +6,17 @@ Test xAPI management command to send course enrollments data.
 from __future__ import absolute_import, unicode_literals
 
 import logging
-import mock
 import unittest
 import uuid
+
+import mock
 from pytest import mark, raises
 
-from django.core.management import call_command, CommandError
+from django.core.management import CommandError, call_command
 
 from enterprise.utils import NotConnectedToOpenEdX
-from test_utils import factories, MockLoggingHandler
 from integrated_channels.exceptions import ClientError
+from test_utils import MockLoggingHandler, factories
 
 
 @mark.django_db
@@ -31,9 +32,9 @@ class TestSendCourseEnrollments(unittest.TestCase):
         enterprise_uuid = str(uuid.uuid4())
         # Make sure CommandError is raised when enterprise customer with given uuid does not exist.
         with raises(
-                CommandError,
-                match='Enterprise customer with uuid "{enterprise_customer_uuid}" '
-                      'does not exist.'.format(enterprise_customer_uuid=enterprise_uuid)
+            CommandError,
+            match='Enterprise customer with uuid "{enterprise_customer_uuid}" '
+                  'does not exist.'.format(enterprise_customer_uuid=enterprise_uuid)
         ):
             call_command('send_course_enrollments', days=1, enterprise_customer_uuid=enterprise_uuid)
 
@@ -43,21 +44,24 @@ class TestSendCourseEnrollments(unittest.TestCase):
         """
         enterprise_customer = factories.EnterpriseCustomerFactory()
         with raises(
-                CommandError,
-                match='No xAPI Configuration found for '
-                      '"{enterprise_customer}"'.format(enterprise_customer=enterprise_customer.name)
+            CommandError,
+            match='No xAPI Configuration found for '
+                  '"{enterprise_customer}"'.format(enterprise_customer=enterprise_customer.name)
         ):
             call_command('send_course_enrollments', days=1, enterprise_customer_uuid=enterprise_customer.uuid)
 
-    @mock.patch('integrated_channels.xapi.management.commands.send_course_enrollments.send_course_enrollment_statement')
-    def test_get_course_enrollments(self, mock_send_course_enrollment_statement):
+    @mock.patch(
+        'integrated_channels.xapi.management.commands.send_course_enrollments.send_course_enrollment_statement',
+        mock.MagicMock()
+    )
+    def test_get_course_enrollments(self):
         """
         Make sure NotConnectedToOpenEdX is raised when enterprise app is not installed in Open edX environment.
         """
         xapi_config = factories.XAPILRSConfigurationFactory()
         with raises(
-                NotConnectedToOpenEdX,
-                match='This package must be installed in an OpenEdX environment.'
+            NotConnectedToOpenEdX,
+            match='This package must be installed in an OpenEdX environment.'
         ):
             call_command(
                 'send_course_enrollments',
@@ -65,11 +69,9 @@ class TestSendCourseEnrollments(unittest.TestCase):
                 enterprise_customer_uuid=xapi_config.enterprise_customer.uuid,
             )
 
-        course_enrollment = mock.MagicMock()
-
         # Verify that get_course_enrollments returns CourseEnrollment records
         with mock.patch(
-                'integrated_channels.xapi.management.commands.send_course_enrollments.CourseEnrollment'
+            'integrated_channels.xapi.management.commands.send_course_enrollments.CourseEnrollment'
         ) as mock_enrollments:
             call_command('send_course_enrollments')
             assert mock_enrollments.objects.filter.called
@@ -78,6 +80,7 @@ class TestSendCourseEnrollments(unittest.TestCase):
         'integrated_channels.xapi.management.commands.send_course_enrollments.Command.get_course_enrollments',
         mock.MagicMock(return_value=[mock.MagicMock()])
     )
+    # pylint: disable=invalid-name
     @mock.patch('integrated_channels.xapi.management.commands.send_course_enrollments.send_course_enrollment_statement')
     def test_command(self, mock_send_course_enrollment_statement):
         """
@@ -117,6 +120,7 @@ class TestSendCourseEnrollments(unittest.TestCase):
         'integrated_channels.xapi.management.commands.send_course_enrollments.Command.get_course_enrollments',
         mock.MagicMock(return_value=[mock.MagicMock()])
     )
+    # pylint: disable=invalid-name
     @mock.patch('integrated_channels.xapi.management.commands.send_course_enrollments.send_course_enrollment_statement')
     def test_command_once_for_all_customers(self, mock_send_course_enrollment_statement):
         """
@@ -126,4 +130,3 @@ class TestSendCourseEnrollments(unittest.TestCase):
         call_command('send_course_enrollments')
 
         assert mock_send_course_enrollment_statement.call_count == 5
-

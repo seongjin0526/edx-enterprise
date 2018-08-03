@@ -7,8 +7,8 @@ Utility functions for xAPI.
 from __future__ import absolute_import, unicode_literals
 
 from integrated_channels.xapi.client import EnterpriseXAPIClient
-from integrated_channels.xapi.statements.learner_course_enrollment import LearnerCourseEnrollmentStatement
 from integrated_channels.xapi.serializers import CourseInfoSerializer, LearnerInfoSerializer
+from integrated_channels.xapi.statements.learner_course_enrollment import LearnerCourseEnrollmentStatement
 
 
 def send_course_enrollment_statement(lrs_configuration, course_enrollment):
